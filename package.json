@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "starta": "next start -p 3001",
-    "start" : "node server.js",
+    "start-fe": "next start -p 3001",
+    "start": "node server.js",
     "lint": "next lint"
   },
   "dependencies": {
