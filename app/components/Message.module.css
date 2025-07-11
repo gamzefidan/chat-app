@@ -1,0 +1,19 @@
+.myMessage {
+  background-color: #e0f7fa;         /* Açık mavi */
+  color: #004d40;                    /* Yazı rengi */
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  align-self: flex-end;             /* Sağa hizala */
+  max-width: 70%;
+}
+
+.otherMessage {
+  background-color: #c8e6c9;         /* Açık yeşil */
+  color: #1b5e20;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  align-self: flex-start;           /* Sola hizala */
+  max-width: 70%;
+}
