@@ -12,20 +12,20 @@ export default function Home() {
   const [name, setName] = useState("");
   const [showNamePopup, setShowNamePopup] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
-  const [users, setUsers]= useState([]);
-  const [selectedUser, setSelectedUser]= useState(null);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // Socket bağlantısını aç, mesaj dinle
   useEffect(() => {
     const newSocket = io();
     setSocket(newSocket);
 
-    newSocket.on("users", (userList)=> {
+    newSocket.on("users", (userList) => {
       setUsers(userList);
     });
 
-     newSocket.on("receiveMessage", (data) => {
-    
+    newSocket.on("receiveMessage", (data) => {
+      // Eğer özel mesaj ise, sadece kendimizeyse ekle
       if (data.to && data.to !== newSocket.id) return;
 
       setChat((prev) => [...prev, data]);
@@ -34,7 +34,6 @@ export default function Home() {
     return () => newSocket.disconnect();
   }, []);
 
-  
   useEffect(() => {
     if (darkMode) {
       document.documentElement.setAttribute("data-theme", "dark");
@@ -50,15 +49,15 @@ export default function Home() {
     }
     if (message.trim() === "") return;
 
-    const newMessage = {
-      id: socket.id,
-      text: { message, name },
-      to: selectedUser?.id || null,
-    };
+    if (message.length > 1000) {
+      alert("Mesaj en fazla 1000 karakter olabilir.");
+      return;
+    }
 
-    setChat((prev) => [...prev, newMessage]);
+    const msgObj = { id: socket.id, text: { message, name } };
+    setChat((prev) => [...prev, msgObj]);
 
-    socket.emit("sendMessage", newMessage);
+    socket.emit("sendMessage", { message, name });
     setMessage("");
   };
 
@@ -102,7 +101,7 @@ export default function Home() {
 
       {!showNamePopup && (
         <div className={styles.mainContent}>
-          {/* 👤 Kullanıcı listesi */}
+          {/* Kullanıcı listesi */}
           <aside className={styles.userList}>
             <h3>Kullanıcılar</h3>
             <ul>
@@ -112,9 +111,7 @@ export default function Home() {
                   <li
                     key={user.id}
                     onClick={() => setSelectedUser(user)}
-                    className={
-                      selectedUser?.id === user.id ? styles.activeUser : ""
-                    }
+                    className={selectedUser?.id === user.id ? styles.activeUser : ""}
                   >
                     {user.name}
                   </li>
@@ -122,29 +119,50 @@ export default function Home() {
             </ul>
           </aside>
 
-          {/* 💬 Chat bölümü */}
+          {/* Chat bölümü */}
           <section className={styles.chatSection}>
             <div className={styles.chatBox}>
-              {chat.map((entry, i) => (
-                <Message
-                  key={i}
-                  name={entry.id === socket?.id ? "Sen" : entry.text.name}
-                  message={entry.text.message}
-                  isMine={entry.id === socket?.id}
-                />
-              ))}
+              {chat.map((entry, i) => {
+                const isMine = entry.id === socket?.id;
+                const displayName = isMine
+                  ? "Sen"
+                  : entry.text && entry.text.name
+                  ? entry.text.name
+                  : "Anonim";
+                const displayMessage =
+                  typeof entry.text === "string"
+                    ? entry.text
+                    : entry.text && entry.text.message
+                    ? entry.text.message
+                    : "";
+
+                return (
+                  <Message
+                    key={i}
+                    name={displayName}
+                    message={displayMessage}
+                    isMine={isMine}
+                  />
+                );
+              })}
             </div>
 
             <div className={styles.inputArea}>
               <input
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                maxLength={1000}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSend();
+                  if (e.keyCode === 13) {
+                    handleSend();
+                  }
                 }}
                 className={styles.input}
                 placeholder="Mesaj yaz..."
               />
+              <div className={styles.charCount}>
+                {1000 - message.length} karakter kaldı
+              </div>
               <button onClick={handleSend} className={styles.button}>
                 Gönder
               </button>
