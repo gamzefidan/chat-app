@@ -10,39 +10,58 @@ const handle= app.getRequestHandler(); //next.js isteklerini yönetiyor
 const expressApp= express();
 
 const httpServer= http.createServer(expressApp);
-const io= new Server(httpServer,{
-  cors:{origin:"*"},
+const io= new Server(httpServer, {
+  cors: { origin: "*" },
 });
 
-io.on("connection", (socket) => { // wbsocket sunucusu oluşturuluyor
+
+const users = {};
+
+io.on("connection", (socket) => {
   console.log("Bağlanan kullanıcı:", socket.id);
 
-  socket.on("sendMessage", (msg)=> {
-    console.log ("Mesaj geldi:", msg);
+ 
+  socket.on("join", (name) => {
+    users[socket.id] = name;
 
-    io.emit("receiveMessage", {
-      id:socket.id,
-      text:msg
-    });
+  
+    io.emit("users", Object.entries(users).map(([id, name]) => ({ id, name })));
   });
 
+  
+  socket.on("sendMessage", (msg) => {
+    console.log("Mesaj geldi:", msg);
+
+    
+    if (msg.to) {
+      io.to(msg.to).emit("receiveMessage", {
+        id: socket.id,
+        text: msg.text,
+        to: msg.to
+      });
+    } else {
+      
+      io.emit("receiveMessage", {
+        id: socket.id,
+        text: msg.text
+      });
+    }
+  });
+
+  
   socket.on("disconnect", () => {
     console.log("Kullanıcı ayrıldı:", socket.id);
+    delete users[socket.id];
+    io.emit("users", Object.entries(users).map(([id, name]) => ({ id, name })));
   });
 });
 
-expressApp.all("*", (req,res)=> {
-  return handle(req,res);
+expressApp.all("*", (req, res) => {
+  return handle(req, res);
 });
 
-app.prepare().then(()=>{
+app.prepare().then(() => {
   httpServer.listen(3000, () => {
     console.log("Sunucu 3000 portunda çalışıyor");
-
   });
 });
-
-// express web sunucusu kuruyor
-//next next.js arayüzünü ayağa kaldırıyor
-//socket.io gerçek zamanlı mesajlaşma sağlar
-//app.prepare sunucuyu başlatır

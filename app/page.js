@@ -12,22 +12,29 @@ export default function Home() {
   const [name, setName] = useState("");
   const [showNamePopup, setShowNamePopup] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [users, setUsers]= useState([]);
+  const [selectedUser, setSelectedUser]= useState(null);
 
   // Socket bağlantısını aç, mesaj dinle
   useEffect(() => {
     const newSocket = io();
     setSocket(newSocket);
 
-    newSocket.on("receiveMessage", (data) => {
-      if (data.id !== newSocket.id) {
-        setChat((prev) => [...prev, data]);
-      }
+    newSocket.on("users", (userList)=> {
+      setUsers(userList);
+    });
+
+     newSocket.on("receiveMessage", (data) => {
+    
+      if (data.to && data.to !== newSocket.id) return;
+
+      setChat((prev) => [...prev, data]);
     });
 
     return () => newSocket.disconnect();
   }, []);
 
-  // Dark mode durumuna göre body'ye attribute ekle/kaldır
+  
   useEffect(() => {
     if (darkMode) {
       document.documentElement.setAttribute("data-theme", "dark");
@@ -43,9 +50,15 @@ export default function Home() {
     }
     if (message.trim() === "") return;
 
-    setChat((prev) => [...prev, { id: socket.id, text: { message, name } }]);
+    const newMessage = {
+      id: socket.id,
+      text: { message, name },
+      to: selectedUser?.id || null,
+    };
 
-    socket.emit("sendMessage", { message, name });
+    setChat((prev) => [...prev, newMessage]);
+
+    socket.emit("sendMessage", newMessage);
     setMessage("");
   };
 
@@ -54,6 +67,10 @@ export default function Home() {
       alert("Lütfen geçerli bir isim giriniz.");
       return;
     }
+
+    // İsmi server'a gönder
+    socket.emit("join", name);
+
     setShowNamePopup(false);
   };
 
@@ -61,7 +78,7 @@ export default function Home() {
     <main className={styles.container}>
       <h1>Chat App</h1>
 
-      {/* Dark mode toggle butonu */}
+      {/* Dark mode toggle */}
       <button
         onClick={() => setDarkMode(!darkMode)}
         className={styles.button}
@@ -84,35 +101,56 @@ export default function Home() {
       )}
 
       {!showNamePopup && (
-        <>
-          <div className={styles.chatBox}>
-            {chat.map((entry, i) => (
-              <Message
-                key={i}
-                name={entry.id === socket?.id ? "Sen" : entry.text.name}
-                message={entry.text.message}
-                isMine={entry.id === socket?.id}
-              />
-            ))}
-          </div>
+        <div className={styles.mainContent}>
+          {/* 👤 Kullanıcı listesi */}
+          <aside className={styles.userList}>
+            <h3>Kullanıcılar</h3>
+            <ul>
+              {users
+                .filter((user) => user.id !== socket.id)
+                .map((user) => (
+                  <li
+                    key={user.id}
+                    onClick={() => setSelectedUser(user)}
+                    className={
+                      selectedUser?.id === user.id ? styles.activeUser : ""
+                    }
+                  >
+                    {user.name}
+                  </li>
+                ))}
+            </ul>
+          </aside>
 
-          <div className={styles.inputArea}>
-            <input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.keyCode === 13) {
-                  handleSend();
-                }
-              }}
-              className={styles.input}
-              placeholder="Mesaj yaz..."
-            />
-            <button onClick={handleSend} className={styles.button}>
-              Gönder
-            </button>
-          </div>
-        </>
+          {/* 💬 Chat bölümü */}
+          <section className={styles.chatSection}>
+            <div className={styles.chatBox}>
+              {chat.map((entry, i) => (
+                <Message
+                  key={i}
+                  name={entry.id === socket?.id ? "Sen" : entry.text.name}
+                  message={entry.text.message}
+                  isMine={entry.id === socket?.id}
+                />
+              ))}
+            </div>
+
+            <div className={styles.inputArea}>
+              <input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSend();
+                }}
+                className={styles.input}
+                placeholder="Mesaj yaz..."
+              />
+              <button onClick={handleSend} className={styles.button}>
+                Gönder
+              </button>
+            </div>
+          </section>
+        </div>
       )}
     </main>
   );

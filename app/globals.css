@@ -1,10 +1,10 @@
 /* Varsayılan (light) tema */
 :root {
-  --bg-color: #40e0d0; /* turkuaz */
-  --text-color: #003366; /* koyu mavi */
+  --bg-color: #9163b2; /* turkuaz */
+  --text-color: #180760; /* koyu mavi */
   --input-bg: #ffffff;
   --input-text: #000000;
-  --button-bg: #008080;
+  --button-bg: #d8b0d5;
   --button-text: #ffffff;
 }
 
@@ -14,7 +14,7 @@
   --text-color: #cccccc;
   --input-bg: #222222;
   --input-text: #eeeeee;
-  --button-bg: #6cbbbb;
+  --button-bg: #123636;
   --button-text: #ffffff;
 }
 
