@@ -1,66 +1,55 @@
-const express= require("express"); // web sunucusu kurmaya yarar
-const next= require("next");
-const http= require("http");
-const{Server}= require("socket.io"); // websocket sunucusu kurmak
+const express = require("express");
+const next = require("next");
+const http = require("http");
+const { Server } = require("socket.io");
 
-const dev= process.env.NODE_ENV !== "production"; // yayın modu
+const dev = process.env.NODE_ENV !== "production";
 
-const app= next({dev});
-const handle= app.getRequestHandler(); //next.js isteklerini yönetiyor
-const expressApp= express();
+const app = next({ dev });
+const handle = app.getRequestHandler();
+const expressApp = express();
 
-const httpServer= http.createServer(expressApp);
-const io= new Server(httpServer, {
+const httpServer = http.createServer(expressApp);
+const io = new Server(httpServer, {
   cors: { origin: "*" },
 });
 
-
-const users = {};
+const users = new Map(); //kullanıcıyı takip et
 
 io.on("connection", (socket) => {
   console.log("Bağlanan kullanıcı:", socket.id);
 
- 
-  socket.on("join", (name) => {
-    users[socket.id] = name;
-
-  
-    io.emit("users", Object.entries(users).map(([id, name]) => ({ id, name })));
+  socket.on("join", (username) => {
+    users.set(socket.id, { id: socket.id, username });
+    io.emit("users", Array.from(users.values()));
+    io.emit("message", {
+      type: "system",
+      text: `${username} odaya katıldı.`,
+    });
   });
 
-  
-  socket.on("sendMessage", (msg) => {
-    console.log("Mesaj geldi:", msg);
+  socket.on("message", (data) => {
+    io.emit("message", data);
+  });
 
-    
-    if (msg.to) {
-      io.to(msg.to).emit("receiveMessage", {
-        id: socket.id,
-        text: msg.text,
-        to: msg.to
-      });
-    } else {
-      
-      io.emit("receiveMessage", {
-        id: socket.id,
-        text: msg.text
+  socket.on("disconnect", () => {
+    const user = users.get(socket.id);
+    if (user) {
+      users.delete(socket.id);
+      io.emit("users", Array.from(users.values()));
+      io.emit("message", {
+        type: "system",
+        text: `${user.username} ayrıldı.`,
       });
     }
   });
-
-  
-  socket.on("disconnect", () => {
-    console.log("Kullanıcı ayrıldı:", socket.id);
-    delete users[socket.id];
-    io.emit("users", Object.entries(users).map(([id, name]) => ({ id, name })));
-  });
 });
 
-expressApp.all("*", (req, res) => {
+expressApp.all("*", (req, res) => { // istekleri next.js gönder
   return handle(req, res);
 });
 
-app.prepare().then(() => {
+app.prepare().then(() => { //sunucuyu başlat
   httpServer.listen(3000, () => {
     console.log("Sunucu 3000 portunda çalışıyor");
   });

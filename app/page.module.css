@@ -1,55 +1,120 @@
 .container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
-  border-radius: 10px;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  height: 100vh;
+  background: linear-gradient(to right, #1abc9c, #3498db);
+  color: #fff;
+  font-family: sans-serif;
 }
 
 .chatBox {
-  height: 300px;
+  flex: 1;
+  padding: 20px;
   overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(135deg, #1de9b6 0%, #1976d2 100%);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(30, 136, 229, 0.08);
+  margin: 16px;
+  padding: 10px;
+  overflow-y: auto;
+  transition: background 0.5s;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chatBox {
+    background: rgba(30, 30, 30, 0.7);
+  }
 }
 
 .inputArea {
   display: flex;
-  gap: 1rem;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  margin: 16px;
+  box-shadow: 0 2px 8px rgba(30, 136, 229, 0.05);
 }
 
-.input {
-  flex-grow: 1;
-  padding: 0.5rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: var(--background-color);
-  color: var(--text-color);
-}
-
-.button {
-  padding: 0.5rem 1rem;
+.inputArea input[type="text"] {
+  flex: 1;
+  padding: 10px;
   border-radius: 5px;
   border: none;
-  background-color: #0070f3;
-  color: white;
+  outline: none;
+  background: white;
+  color: black;
+}
+
+.inputArea button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
   cursor: pointer;
+  background-color: #ffffff;
+  color: #3498db;
+  font-weight: bold;
 }
 
-.button:hover {
-  background-color: #005bb5;
+.userList {
+  width: 220px;
+  border-right: 1px solid #1976d2;
+  padding: 16px 8px;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(30, 136, 229, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.namePopup {
-  padding: 1rem;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin-bottom: 1rem;
+.userListTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #1976d2;
+  letter-spacing: 1px;
+}
+
+.userItem {
+  padding: 7px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  color: #1976d2;
+  background: rgba(30, 233, 182, 0.07);
+}
+
+.userItem.active {
+  background: linear-gradient(90deg, #1de9b6 0%, #1976d2 100%);
+  color: white;
+  font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chatBox,
+  .inputArea {
+    background: rgba(30, 30, 30, 0.7);
+  }
+  .userList {
+    background: rgba(30, 30, 30, 0.7);
+    border-right: 1px solid #232526;
+  }
+  .userListTitle {
+    color: #1de9b6;
+  }
+  .userItem {
+    color: #1de9b6;
+    background: rgba(35, 37, 38, 0.15);
+  }
+  .userItem.active {
+    background: linear-gradient(90deg, #232526 0%, #000000 100%);
+    color: #e0e0e0;
+  }
 }

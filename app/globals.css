@@ -1,45 +1,83 @@
-/* Varsayılan (light) tema */
-:root {
-  --bg-color: #9163b2; /* turkuaz */
-  --text-color: #180760; /* koyu mavi */
-  --input-bg: #ffffff;
-  --input-text: #000000;
-  --button-bg: #d8b0d5;
-  --button-text: #ffffff;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  color: white;
 }
 
-/* Dark tema */
-[data-theme="dark"] {
-  --bg-color: #232020;
-  --text-color: #cccccc;
-  --input-bg: #222222;
-  --input-text: #eeeeee;
-  --button-bg: #123636;
-  --button-text: #ffffff;
+body[data-theme="light"] {
+  background: linear-gradient(135deg, #1de9b6 0%, #1976d2 100%);
+  color: white;
+}
+
+body[data-theme="dark"] {
+  background: linear-gradient(135deg, #232526 0%, #000000 100%);
+  color: #e0e0e0;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  transition: background 0.5s;
 }
 
-input {
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  border: 1px solid var(--text-color);
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(30, 136, 229, 0.3);
+  border-radius: 8px;
+}
+
+input, button {
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
 }
 
 button {
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  border: none;
+  background: linear-gradient(90deg, #1de9b6 0%, #1976d2 100%);
+  color: white;
+  padding: 8px 16px;
   cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  transition: background 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(30,136,229,0.08);
 }
 
 button:hover {
-  opacity: 0.8;
+  background: linear-gradient(90deg, #1976d2 0%, #1de9b6 100%);
+  box-shadow: 0 4px 16px rgba(30,136,229,0.15);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+input[type="text"] {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.08);
+  color: inherit;
+  border: 1px solid #1976d2;
+  margin-right: 8px;
+}
+
+body[data-theme="dark"] input[type="text"] {
+  background: rgba(30,30,30,0.7);
+  border: 1px solid #232526;
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] button {
+  background: linear-gradient(90deg, #232526 0%, #000000 100%);
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] button:hover {
+  background: linear-gradient(90deg, #000000 0%, #232526 100%);
 }
